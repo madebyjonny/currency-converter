@@ -1,44 +1,37 @@
 import { useState } from "react";
 import { conversionSchema } from "./schema/conversion";
 import { useConvertCurrency, useCurrencies } from "./hooks/currencies";
-import type { ConversionResponse } from "./services/currency-service";
 import { Select } from "./components/select/select";
 import { Input } from "./components/input/input";
 
 function App() {
   const {
     mutate: convertCurrency,
+    data: conversionData,
     isPending: isConverting,
     error: conversionError,
   } = useConvertCurrency();
   const { data: currencyList, isLoading, error } = useCurrencies();
-  const [convertedData, setConvertedData] = useState<ConversionResponse | null>(
-    null
-  );
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [amount, setAmount] = useState<number | undefined>(undefined);
 
-  async function handleSubmit(formData: FormData) {
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     setErrorMessage("");
-    const from = formData.get("from") as string;
-    const to = formData.get("to") as string;
-    const amount = Number(formData.get("amount"));
+
+    const formData = new FormData(event.currentTarget);
 
     const parsed = conversionSchema.safeParse({
-      from,
-      to,
-      amount,
+      from: formData.get("from"),
+      to: formData.get("to"),
+      amount: Number(formData.get("amount")),
     });
+
     if (!parsed.success) {
       return setErrorMessage("There was an issue with your input");
     }
 
-    setAmount(amount);
-
     convertCurrency(parsed.data, {
-      onSuccess: (data) => {
-        setConvertedData(data);
-      },
       onError: (error: unknown) => {
         if (error instanceof Error) {
           setErrorMessage(error.message);
@@ -49,35 +42,51 @@ function App() {
     });
   }
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading && !currencyList) {
+    return (
+      <div className="flex justify-center">
+        <span>Loading...</span>
+      </div>
+    );
+  }
 
-  if (error) return <div>Error loading currencies</div>;
+  if (error)
+    return (
+      <div className="flex justify-center">
+        <span>Error loading currencies</span>
+      </div>
+    );
 
   return (
     <>
       <h1 className="my-4 p-4 text-2xl font-bold">Currency Converter</h1>
-      <form action={handleSubmit} className="flex flex-col gap-4 p-4">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-4">
         <Input
-          label="Amount"
+          label="From"
           id="amount"
           name="amount"
           type="number"
           step="0.01"
+          min={0.01}
           placeholder="Amount e.g. 100.00"
-          defaultValue={amount}
           className="p-2 border rounded"
           required
         />
 
         <div className="flex items-center gap-2">
-          <Select name="from" defaultValue="USD" id="from" label="From">
+          <Select
+            name="from"
+            defaultValue={"USD"}
+            id="from"
+            label="From Currency"
+          >
             {(currencyList ?? []).map((c) => (
               <option key={`from-${c.id}`} value={c.short_code}>
                 {c.name}
               </option>
             ))}
           </Select>
-          <Select name="to" defaultValue="EUR" id="to" label="To">
+          <Select name="to" defaultValue={"GBP"} id="to" label="To Currency">
             {(currencyList ?? []).map((c) => (
               <option key={`to-${c.id}`} value={c.short_code}>
                 {c.name}
@@ -92,7 +101,6 @@ function App() {
           {isConverting ? "Converting..." : "Convert"}
         </button>
       </form>
-
       <div aria-live="polite" className="mt-4">
         {conversionError && (
           <span className="text-red-500">
@@ -100,15 +108,14 @@ function App() {
           </span>
         )}
 
-        {convertedData && (
+        {conversionData && (
           <div className="flex flex-col gap-2 p-4 ">
-            <strong>
-              {convertedData.amount.toFixed(2)} {convertedData.from}
-            </strong>
             <span>
-              Converted Amount:{" "}
-              {`${convertedData.value.toFixed(2)} ${convertedData.to}`}
+              {conversionData.amount.toFixed(2)} {conversionData.from}
             </span>
+            <strong>
+              To: {`${conversionData.value.toFixed(2)} ${conversionData.to}`}
+            </strong>
           </div>
         )}
       </div>
