@@ -2,6 +2,8 @@ import { useState } from "react";
 import { conversionSchema } from "./schema/conversion";
 import { useConvertCurrency, useCurrencies } from "./hooks/currencies";
 import type { ConversionResponse } from "./services/currency-service";
+import { Select } from "./components/select/select";
+import { Input } from "./components/input/input";
 
 function App() {
   const {
@@ -13,7 +15,8 @@ function App() {
   const [convertedData, setConvertedData] = useState<ConversionResponse | null>(
     null
   );
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [amount, setAmount] = useState<number | undefined>(undefined);
 
   async function handleSubmit(formData: FormData) {
     setErrorMessage("");
@@ -29,6 +32,8 @@ function App() {
     if (!parsed.success) {
       return setErrorMessage("There was an issue with your input");
     }
+
+    setAmount(amount);
 
     convertCurrency(parsed.data, {
       onSuccess: (data) => {
@@ -50,38 +55,35 @@ function App() {
 
   return (
     <>
-      <form action={handleSubmit} className="flex flex-col gap-4 p-4 ">
-        <input
+      <h1 className="my-4 p-4 text-2xl font-bold">Currency Converter</h1>
+      <form action={handleSubmit} className="flex flex-col gap-4 p-4">
+        <Input
+          label="Amount"
+          id="amount"
           name="amount"
           type="number"
-          placeholder="Amount"
+          step="0.01"
+          placeholder="Amount e.g. 100.00"
+          defaultValue={amount}
           className="p-2 border rounded"
           required
         />
 
         <div className="flex items-center gap-2">
-          <select
-            name="from"
-            defaultValue="USD"
-            className="p-2 border rounded flex-1"
-          >
+          <Select name="from" defaultValue="USD" id="from" label="From">
             {(currencyList ?? []).map((c) => (
               <option key={`from-${c.id}`} value={c.short_code}>
                 {c.name}
               </option>
             ))}
-          </select>
-          <select
-            name="to"
-            defaultValue="EUR"
-            className="p-2 border rounded flex-1"
-          >
+          </Select>
+          <Select name="to" defaultValue="EUR" id="to" label="To">
             {(currencyList ?? []).map((c) => (
               <option key={`to-${c.id}`} value={c.short_code}>
                 {c.name}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
 
         {errorMessage && <span className="text-red-500">{errorMessage}</span>}
@@ -101,7 +103,7 @@ function App() {
         {convertedData && (
           <div className="flex flex-col gap-2 p-4 ">
             <strong>
-              {convertedData.amount} {convertedData.from}
+              {convertedData.amount.toFixed(2)} {convertedData.from}
             </strong>
             <span>
               Converted Amount:{" "}
