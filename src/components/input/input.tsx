@@ -12,7 +12,9 @@ export function Input({ className, id, name, label, ...props }: InputProps) {
       <Label htmlFor={id}>{label}</Label>
 
       <input
-        className={`p-2 border rounded flex-1 ${className ?? ""}`}
+        className={`p-2 border rounded flex-1  user-invalid:border-red-500  user-valid:border-green-500 ${
+          className ?? ""
+        } `}
         id={id}
         name={name}
         {...props}
