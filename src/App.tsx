@@ -61,7 +61,7 @@ function App() {
   return (
     <>
       <h1 className="my-4 p-4 text-2xl font-bold">Currency Converter</h1>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-4">
+      <form onSubmit={handleSubmit} className="flex flex-col  gap-4 p-4">
         <Input
           label="From"
           id="amount"
@@ -74,7 +74,7 @@ function App() {
           required
         />
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center flex-wrap gap-2">
           <Select
             name="from"
             defaultValue={"USD"}
@@ -98,7 +98,10 @@ function App() {
 
         <ErrorMessage message={errorMessage} />
 
-        <button type="submit" className="bg-blue-500 text-white p-2 rounded-xl">
+        <button
+          type="submit"
+          className="bg-blue-700 hover:bg-blue-800 font-bold text-white p-2 rounded-xl"
+        >
           {isConverting ? "Converting..." : "Convert"}
         </button>
       </form>
