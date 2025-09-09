@@ -3,13 +3,14 @@ import { conversionSchema } from "./schema/conversion";
 import { useConvertCurrency, useCurrencies } from "./hooks/currencies";
 import { Select } from "./components/select/select";
 import { Input } from "./components/input/input";
+import { ConversionResult } from "./components/conversion-result/conversion-result";
+import { ErrorMessage } from "./components/error-message/error-message";
 
 function App() {
   const {
     mutate: convertCurrency,
     data: conversionData,
     isPending: isConverting,
-    error: conversionError,
   } = useConvertCurrency();
   const { data: currencyList, isLoading, error } = useCurrencies();
 
@@ -95,30 +96,17 @@ function App() {
           </Select>
         </div>
 
-        {errorMessage && <span className="text-red-500">{errorMessage}</span>}
+        <ErrorMessage message={errorMessage} />
 
         <button type="submit" className="bg-blue-500 text-white p-2 rounded-xl">
           {isConverting ? "Converting..." : "Convert"}
         </button>
       </form>
-      <div aria-live="polite" className="mt-4">
-        {conversionError && (
-          <span className="text-red-500">
-            {conversionError.message || "Conversion failed"}
-          </span>
-        )}
 
-        {conversionData && (
-          <div className="flex flex-col gap-2 p-4 ">
-            <span>
-              {conversionData.amount.toFixed(2)} {conversionData.from}
-            </span>
-            <strong>
-              To: {`${conversionData.value.toFixed(2)} ${conversionData.to}`}
-            </strong>
-          </div>
-        )}
-      </div>
+      <ConversionResult
+        errorMessage={errorMessage}
+        conversionData={conversionData}
+      />
     </>
   );
 }
