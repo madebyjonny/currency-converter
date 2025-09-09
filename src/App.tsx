@@ -33,7 +33,11 @@ function App() {
         setConvertedValue(data.value);
       },
       onError: (error: unknown) => {
-        setErrorMessage(error.message || "Conversion failed");
+        if (error instanceof Error) {
+          setErrorMessage(error.message);
+        } else {
+          setErrorMessage("Conversion failed");
+        }
       },
     });
   }
@@ -84,7 +88,7 @@ function App() {
         {errorMessage && <span className="text-red-500">{errorMessage}</span>}
 
         <button type="submit" className="bg-blue-500 text-white p-2 rounded-xl">
-          Convert
+          {isConverting ? "Converting..." : "Convert"}
         </button>
       </form>
 
@@ -94,7 +98,6 @@ function App() {
             {conversionError.message || "Conversion failed"}
           </span>
         )}
-        {isConverting && <span>Converting...</span>}
         {convertedValue && <div>Converted Amount: {convertedValue}</div>}
       </div>
     </>
