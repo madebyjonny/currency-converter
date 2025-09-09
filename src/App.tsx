@@ -43,7 +43,7 @@ function App() {
     });
   }
 
-  if (isLoading && !currencyList) {
+  if (isLoading) {
     return (
       <div className="flex justify-center">
         <span>Loading...</span>
