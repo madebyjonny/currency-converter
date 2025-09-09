@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { conversionSchema } from "./schema/conversion";
 import { useConvertCurrency, useCurrencies } from "./hooks/currencies";
+import type { ConversionResponse } from "./services/currency-service";
 
 function App() {
   const {
@@ -9,8 +10,9 @@ function App() {
     error: conversionError,
   } = useConvertCurrency();
   const { data: currencyList, isLoading, error } = useCurrencies();
-  const [convertedValue, setConvertedValue] = useState<number | null>(null);
-
+  const [convertedData, setConvertedData] = useState<ConversionResponse | null>(
+    null
+  );
   const [errorMessage, setErrorMessage] = useState("");
 
   async function handleSubmit(formData: FormData) {
@@ -30,7 +32,7 @@ function App() {
 
     convertCurrency(parsed.data, {
       onSuccess: (data) => {
-        setConvertedValue(data.value);
+        setConvertedData(data);
       },
       onError: (error: unknown) => {
         if (error instanceof Error) {
@@ -48,10 +50,7 @@ function App() {
 
   return (
     <>
-      <form
-        action={handleSubmit}
-        className="flex flex-col gap-4 p-4 bg-white shadow rounded-2xl"
-      >
+      <form action={handleSubmit} className="flex flex-col gap-4 p-4 ">
         <input
           name="amount"
           type="number"
@@ -98,7 +97,18 @@ function App() {
             {conversionError.message || "Conversion failed"}
           </span>
         )}
-        {convertedValue && <div>Converted Amount: {convertedValue}</div>}
+
+        {convertedData && (
+          <div className="flex flex-col gap-2 p-4 ">
+            <strong>
+              {convertedData.amount} {convertedData.from}
+            </strong>
+            <span>
+              Converted Amount:{" "}
+              {`${convertedData.value.toFixed(2)} ${convertedData.to}`}
+            </span>
+          </div>
+        )}
       </div>
     </>
   );
