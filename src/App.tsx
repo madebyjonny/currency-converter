@@ -51,12 +51,13 @@ function App() {
     );
   }
 
-  if (error)
+  if (error) {
     return (
       <div className="flex justify-center">
         <span>Error loading currencies</span>
       </div>
     );
+  }
 
   return (
     <>
