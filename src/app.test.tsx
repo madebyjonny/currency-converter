@@ -43,14 +43,14 @@ describe("App", () => {
 
     (useConvertCurrency as Mock).mockReturnValue({
       mutate: mockConvertCurrency,
-      data: { value: 100 },
+      data: { value: 100, from: "USD", to: "EUR" },
       isPending: false,
     });
 
     (useCurrencies as Mock).mockReturnValue({
       data: [
         { id: 1, short_code: "USD", name: "US Dollar" },
-        { id: 2, short_code: "GBP", name: "British Pound" },
+        { id: 2, short_code: "EUR", name: "British Pound" },
       ],
       isLoading: false,
       error: null,
@@ -65,14 +65,14 @@ describe("App", () => {
       target: { value: "USD" },
     });
     fireEvent.change(screen.getByLabelText("To Currency"), {
-      target: { value: "GBP" },
+      target: { value: "EUR" },
     });
 
     fireEvent.click(screen.getByText("Convert"));
 
     await waitFor(() => {
       expect(mockConvertCurrency).toHaveBeenCalledWith(
-        { from: "USD", to: "GBP", amount: 50 },
+        { from: "USD", to: "EUR", amount: 50 },
         expect.any(Object)
       );
     });
