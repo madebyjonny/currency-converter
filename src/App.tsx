@@ -54,7 +54,7 @@ function App() {
   if (error) {
     return (
       <div className="flex justify-center">
-        <span>Error loading currencies</span>
+        <ErrorMessage message={"Error loading currencies"} />
       </div>
     );
   }
