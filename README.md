@@ -2,6 +2,11 @@
 
 A simple currency converter application built with React, Vite, and TailwindCSS. This project allows users to fetch currency data and convert between different currencies using a public API.
 
+## Prerequisites
+
+- You will need an API Key from https://currencybeacon.com 
+- You will need to create an .env file, an example is provided
+
 ## Features
 
 - Fetches currency data
