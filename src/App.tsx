@@ -6,6 +6,15 @@ import { Input } from "./components/input/input";
 import { ConversionResult } from "./components/conversion-result/conversion-result";
 import { ErrorMessage } from "./components/error-message/error-message";
 
+interface HistoryType {
+  from: string;
+  to: string;
+  amount: number;
+  convertedAmount: number;
+}
+
+const historyEnd = 5;
+
 function App() {
   const {
     mutate: convertCurrency,
@@ -13,7 +22,7 @@ function App() {
     isPending: isConverting,
   } = useConvertCurrency();
   const { data: currencyList, isLoading, error } = useCurrencies();
-
+  const [history, sethistory] = useState<HistoryType[] | []>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -33,6 +42,18 @@ function App() {
     }
 
     convertCurrency(parsed.data, {
+      onSuccess: (data) => {
+        const historyItem = {
+          from: formData.get("from") as string,
+          to: formData.get("to") as string,
+          amount: Number(formData.get("amount")),
+          convertedAmount: data.value,
+        };
+
+        sethistory((state) => {
+          return [historyItem, ...state];
+        });
+      },
       onError: (error: unknown) => {
         if (error instanceof Error) {
           setErrorMessage(error.message);
@@ -111,6 +132,27 @@ function App() {
         errorMessage={errorMessage}
         conversionData={conversionData}
       />
+
+      <h2>History</h2>
+
+      {history.length == 0 ? "no saved conversions" : null}
+
+      <ul>
+        {history.slice(0, historyEnd).map((item) => {
+          return (
+            <li className="flex gap-2">
+              <span>From:</span>
+              <span>{item.from}</span>
+              <span>To:</span>
+              <span>{item.to}</span>
+              <span>Amount:</span>
+              <span>{item.amount}</span>
+              <span>Converted Amount:</span>
+              <span>{item.convertedAmount.toFixed(2)}</span>
+            </li>
+          );
+        })}
+      </ul>
     </>
   );
 }
